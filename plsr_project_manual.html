@@ -1,0 +1,1377 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PLSR 工程说明</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f5f7;
+      --panel: rgba(255, 255, 255, 0.86);
+      --panel-solid: #ffffff;
+      --ink: #1d1d1f;
+      --muted: #6e6e73;
+      --line: #d8d8de;
+      --blue: #0066cc;
+      --green: #0b7a4b;
+      --amber: #946200;
+      --red: #b42318;
+      --code: #f2f4f7;
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.08);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(180deg, #fbfbfd 0%, var(--bg) 260px, #f7f7f9 100%);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "PingFang SC",
+        "Microsoft YaHei", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.72;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    code {
+      padding: 0.12em 0.38em;
+      border: 1px solid #e1e4ea;
+      border-radius: 6px;
+      background: var(--code);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 0.92em;
+      white-space: nowrap;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 286px minmax(0, 1fr);
+      gap: 32px;
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 32px 32px 64px;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      max-height: calc(100vh - 48px);
+      overflow: auto;
+      padding: 18px;
+      border: 1px solid rgba(210, 210, 216, 0.72);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.05);
+    }
+
+    .brand {
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand strong {
+      display: block;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    .brand span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .toc-title {
+      margin: 16px 0 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .toc {
+      display: grid;
+      gap: 3px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .toc a {
+      display: block;
+      padding: 6px 8px;
+      border-radius: 7px;
+      color: #2f3034;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .toc a:hover {
+      background: #eef4ff;
+      text-decoration: none;
+    }
+
+    .toc .sub a {
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    .hero {
+      padding: 58px 0 34px;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--blue);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    h1 {
+      max-width: 960px;
+      margin: 0;
+      font-size: 48px;
+      line-height: 1.12;
+      font-weight: 760;
+    }
+
+    .lead {
+      max-width: 940px;
+      margin: 18px 0 0;
+      color: #424245;
+      font-size: 19px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .meta {
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-solid);
+    }
+
+    .meta span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .meta strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 16px;
+    }
+
+    .chapter {
+      margin-top: 22px;
+      padding: 34px;
+      border: 1px solid rgba(210, 210, 216, 0.82);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    h2 {
+      margin: 0 0 18px;
+      font-size: 34px;
+      line-height: 1.18;
+    }
+
+    h3 {
+      margin: 34px 0 12px;
+      padding-top: 6px;
+      border-top: 1px solid var(--line);
+      font-size: 24px;
+      line-height: 1.25;
+    }
+
+    h4 {
+      margin: 22px 0 8px;
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    p {
+      margin: 10px 0;
+    }
+
+    .note {
+      padding: 14px 16px;
+      border: 1px solid #cfe3ff;
+      border-radius: var(--radius);
+      background: #f1f7ff;
+      color: #163b62;
+    }
+
+    .warning {
+      padding: 14px 16px;
+      border: 1px solid #f1d69b;
+      border-radius: var(--radius);
+      background: #fff8e7;
+      color: #5b3b00;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0 18px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #ffffff;
+      color: #3a3a3c;
+      font-size: 13px;
+      line-height: 1.3;
+    }
+
+    .chip.blue {
+      border-color: #b9d7ff;
+      background: #edf5ff;
+      color: #004c9c;
+    }
+
+    .chip.green {
+      border-color: #bfe6d2;
+      background: #f0fbf5;
+      color: var(--green);
+    }
+
+    .chip.amber {
+      border-color: #efd797;
+      background: #fff8e0;
+      color: var(--amber);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .box {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .box h4:first-child {
+      margin-top: 0;
+    }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 1.25em;
+    }
+
+    li {
+      margin: 4px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 18px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #ececf1;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f7f7fa;
+      color: #343437;
+      font-weight: 700;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .file-card {
+      margin-top: 22px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .file-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .file-head h3 {
+      margin: 0;
+      padding-top: 0;
+      border-top: 0;
+      font-size: 22px;
+    }
+
+    .path {
+      display: inline-block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      word-break: break-all;
+    }
+
+    .tag {
+      flex: 0 0 auto;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #f2f4f7;
+      color: #4a4a4f;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .kbd {
+      display: inline-block;
+      min-width: 26px;
+      padding: 2px 7px;
+      border: 1px solid #d0d5dd;
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+      text-align: center;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 14px 0;
+      align-items: center;
+    }
+
+    .flow span {
+      padding: 8px 10px;
+      border: 1px solid #d9e3f2;
+      border-radius: var(--radius);
+      background: #fbfdff;
+      font-size: 14px;
+    }
+
+    .flow b {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    @media (max-width: 1180px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .layout {
+        padding: 20px 16px 40px;
+      }
+
+      h1 {
+        font-size: 34px;
+      }
+
+      h2 {
+        font-size: 27px;
+      }
+
+      .chapter {
+        padding: 22px 16px;
+      }
+
+      .meta-grid,
+      .grid-2,
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .file-head {
+        display: block;
+      }
+
+      .tag {
+        display: inline-block;
+        margin-top: 10px;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: normal;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar" aria-label="目录">
+      <div class="brand">
+        <strong>PLSR 工程说明</strong>
+        <span>STM32F103C8T6 / CubeMX / Modbus RTU / 脉冲输出</span>
+      </div>
+      <div class="toc-title">两个主章节</div>
+      <ol class="toc">
+        <li><a href="#cubemx">1. STM32CubeMX 的配置</a></li>
+        <li><a href="#custom-files">2. 自定义文件逐文件说明</a></li>
+      </ol>
+      <div class="toc-title">第二章小节</div>
+      <ol class="toc">
+        <li class="sub"><a href="#plsr-types">plsr_types.h</a></li>
+        <li class="sub"><a href="#plsr-config">plsr_config.h / .c</a></li>
+        <li class="sub"><a href="#plsr-profile">plsr_profile.h / .c</a></li>
+        <li class="sub"><a href="#plsr-core">plsr_core.h / .c</a></li>
+        <li class="sub"><a href="#plsr-port">plsr_port.h / .c</a></li>
+        <li class="sub"><a href="#plsr-storage">plsr_storage.h / .c</a></li>
+        <li class="sub"><a href="#plsr-service">plsr_service.h / .c</a></li>
+        <li class="sub"><a href="#modbus-app">modbus_app.h / .c</a></li>
+        <li class="sub"><a href="#my-define">my_define.h</a></li>
+        <li class="sub"><a href="#plsr-board">plsr_board.h</a></li>
+        <li class="sub"><a href="#plsr-hw">plsr_hw.h / .c</a></li>
+        <li class="sub"><a href="#flash-driver">flash_driver.h / .c</a></li>
+        <li class="sub"><a href="#usart-driver">usart_driver.h / .c</a></li>
+        <li class="sub"><a href="#app-main">my_main.h / .c</a></li>
+        <li class="sub"><a href="#scheduler">scheduler.h / .c</a></li>
+        <li class="sub"><a href="#motor-task">motor_task.h / .c</a></li>
+        <li class="sub"><a href="#usart-task">usart_task.h / .c</a></li>
+        <li class="sub"><a href="#vofa-task">vofa_app.h / .c</a></li>
+      </ol>
+    </aside>
+
+    <main>
+      <header class="hero">
+        <p class="eyebrow">工程学习手册</p>
+        <h1>PLSR 脉冲控制工程的 CubeMX 配置与自定义源码说明</h1>
+        <p class="lead">
+          本文件基于当前工程目录生成，只设置两个主章节：先粗略但完整地说明 STM32CubeMX 配置，
+          再逐个说明非 CubeMX 生成、非 agile_modbus 源码的业务文件。
+        </p>
+        <div class="meta-grid">
+          <div class="meta"><span>芯片</span><strong>STM32F103C8T6</strong></div>
+          <div class="meta"><span>主频</span><strong>72 MHz</strong></div>
+          <div class="meta"><span>协议</span><strong>Modbus RTU</strong></div>
+          <div class="meta"><span>输出</span><strong>TIM3 PWM + TIM4 计数</strong></div>
+        </div>
+      </header>
+
+      <section id="cubemx" class="chapter">
+        <h2>1. STM32CubeMX 的配置</h2>
+        <p>
+          CubeMX 工程文件为 <code>plsr_project.ioc</code>，目标芯片是 <code>STM32F103C8Tx</code>，
+          封装为 LQFP48，固件包为 <code>STM32Cube FW_F1 V1.8.7</code>，生成工具链选择
+          <code>MDK-ARM V5.32</code>。工程保留用户代码区，生成入口位于 <code>Core/Src</code>。
+        </p>
+
+        <div class="grid-2">
+          <div class="box">
+            <h4>时钟树</h4>
+            <ul>
+              <li>外部高速晶振 <code>HSE</code> 开启，PLL 源选择 HSE，倍频 <code>x9</code>。</li>
+              <li><code>SYSCLK</code>、<code>HCLK</code>、<code>APB2</code> 均为 <code>72 MHz</code>。</li>
+              <li><code>APB1</code> 分频为 <code>36 MHz</code>，APB1 定时器时钟仍为 <code>72 MHz</code>。</li>
+              <li><code>SysTick</code> 作为 HAL tick，优先级为 15。</li>
+            </ul>
+          </div>
+          <div class="box">
+            <h4>工程入口</h4>
+            <ul>
+              <li><code>main.c</code> 先执行 <code>HAL_Init</code>、<code>SystemClock_Config</code>。</li>
+              <li>随后初始化 <code>GPIO</code>、<code>DMA</code>、<code>USART1</code>、<code>TIM3</code>、<code>TIM4</code>、<code>USART3</code>、<code>TIM1</code>。</li>
+              <li>用户区调用 <code>my_main()</code>，实际业务主循环在自定义文件内完成。</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>引脚与外设角色</h3>
+        <table>
+          <thead>
+            <tr><th>资源</th><th>配置</th><th>在工程中的作用</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>PA6</code></td><td><code>TIM3_CH1</code>，PWM 输出，复用推挽，高速</td><td>脉冲输出端，当前板级映射中 Y0 至 Y3 都指向该物理脚。</td></tr>
+            <tr><td><code>PA7</code></td><td>普通推挽输出，默认低电平</td><td>方向输出端，当前板级映射中 Y12 至 Y15 都指向该物理脚。</td></tr>
+            <tr><td><code>PA5</code></td><td>上升沿 EXTI，内部下拉</td><td>外部等待/触发输入，映射为 X4、X5。</td></tr>
+            <tr><td><code>PA9 / PA10</code></td><td><code>USART1_TX/RX</code>，异步串口</td><td>Modbus RTU 通信口，RX/TX 均配置 DMA。</td></tr>
+            <tr><td><code>PB10 / PB11</code></td><td><code>USART3_TX/RX</code>，异步串口</td><td>调试与 VOFA 输出，TX 配置 DMA。</td></tr>
+            <tr><td><code>PD0 / PD1</code></td><td>HSE 外部晶振</td><td>系统主时钟来源。</td></tr>
+            <tr><td><code>PC14 / PC15</code></td><td>LSE 外部晶振</td><td>保留低速外部时钟资源。</td></tr>
+            <tr><td><code>PA13 / PA14</code></td><td>SWDIO / SWCLK</td><td>调试下载接口。</td></tr>
+          </tbody>
+        </table>
+
+        <h3>定时器配置</h3>
+        <div class="grid-3">
+          <div class="box">
+            <h4>TIM3</h4>
+            <p><code>TIM3_CH1</code> 配置为 PWM Generation CH1，初始 <code>PSC=0</code>、<code>ARR=65535</code>，主触发输出为 <code>TRGO_UPDATE</code>。业务代码运行时会动态改写 PSC、ARR、CCR1 来生成指定频率和 50% 占空比脉冲。</p>
+          </div>
+          <div class="box">
+            <h4>TIM4</h4>
+            <p><code>TIM4</code> 使用 ITR2 作为外部时钟触发，等价于对 TIM3 更新事件计数；CH1 配成 Output Compare No Output。业务代码利用 TIM4 CH1 + DMA 在接近目标脉冲数时自动关闭 TIM3。</p>
+          </div>
+          <div class="box">
+            <h4>TIM1</h4>
+            <p><code>TIM1</code> 配置为基础定时器，<code>PSC=71</code>、<code>ARR=999</code>，更新中断已打开。当前自定义调度主要依赖 <code>HAL_GetTick()</code>，TIM1 在现有业务中没有形成主要控制链路。</p>
+          </div>
+        </div>
+
+        <h3>DMA 配置</h3>
+        <table>
+          <thead>
+            <tr><th>请求</th><th>DMA 通道</th><th>方向与数据宽度</th><th>优先级</th><th>用途</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>USART1_RX</code></td><td><code>DMA1_Channel5</code></td><td>外设到内存，byte，内存递增</td><td>Medium</td><td>接收 Modbus RTU 帧，配合空闲中断。</td></tr>
+            <tr><td><code>USART1_TX</code></td><td><code>DMA1_Channel4</code></td><td>内存到外设，byte，内存递增</td><td>Very High</td><td>发送 Modbus RTU 响应。</td></tr>
+            <tr><td><code>USART3_TX</code></td><td><code>DMA1_Channel2</code></td><td>内存到外设，byte，内存递增</td><td>Low</td><td><code>my_printf</code> 调试输出与 VOFA 数据输出。</td></tr>
+            <tr><td><code>TIM4_CH1</code></td><td><code>DMA1_Channel1</code></td><td>内存到外设，word，内存不递增</td><td>Very High</td><td>比较事件触发 DMA 写 TIM3 CR1，自动停止 PWM。</td></tr>
+          </tbody>
+        </table>
+
+        <h3>串口与中断</h3>
+        <div class="grid-2">
+          <div class="box">
+            <h4>USART</h4>
+            <ul>
+              <li><code>USART1</code> 与 <code>USART3</code> 均为 <code>115200 8N1</code>，无硬件流控，16 倍过采样。</li>
+              <li><code>USART1</code> 用作 Modbus RTU 从站口。</li>
+              <li><code>USART3</code> 用作格式化输出口，供调试和 VOFA 曲线显示。</li>
+            </ul>
+          </div>
+          <div class="box">
+            <h4>NVIC</h4>
+            <ul>
+              <li>开启 <code>DMA1_Channel1/2/4/5</code>、<code>EXTI9_5</code>、<code>TIM1_UP</code>、<code>USART1</code>、<code>USART3</code> 中断。</li>
+              <li>外设中断优先级基本为 0，<code>SysTick</code> 为 15。</li>
+              <li><code>EXTI9_5_IRQHandler</code> 调用 HAL EXTI 处理，最终触发自定义 <code>HAL_GPIO_EXTI_Callback</code>。</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>CubeMX 生成文件边界</h3>
+        <p>
+          <code>Core/</code>、<code>Drivers/</code>、<code>MDK-ARM</code> 下的启动文件、工程文件、HAL/CMSIS 文件和大部分
+          <code>main.c</code>、<code>gpio.c</code>、<code>dma.c</code>、<code>tim.c</code>、<code>usart.c</code> 都属于 CubeMX/HAL 生成或派生代码。
+          第二章不逐行展开这些文件，而是聚焦业务侧自定义文件。
+        </p>
+
+        <div class="flow" aria-label="业务启动流">
+          <span>CubeMX <code>main()</code></span><b>到</b>
+          <span><code>my_main()</code></span><b>到</b>
+          <span><code>scheduler_run()</code></span><b>到</b>
+          <span><code>usart1_task</code> / <code>motor_task_1ms</code> / <code>vofa_task</code> / <code>storage_task</code></span>
+        </div>
+      </section>
+
+      <section id="custom-files" class="chapter">
+        <h2>2. 自定义文件逐文件说明</h2>
+        <p>
+          本章覆盖非 CubeMX 生成、非 <code>agile_modbus.c/.h</code>、非
+          <code>agile_modbus_slave_util.c/.h</code>、非 <code>agile_modbus_rtu.c/.h</code> 的业务源码与头文件。
+          说明维度固定为：文件职责、宏定义、结构体/枚举、变量、函数。
+        </p>
+        <div class="warning">
+          <strong>范围说明：</strong>编译产物、HAL/CMSIS、MDK 工程文件、启动汇编以及 agile_modbus 第三方协议栈源码不纳入本章。
+          <code>modbus_app.c/.h</code> 是本工程对 agile_modbus 的业务适配层，因此纳入说明。
+        </div>
+
+        <article id="plsr-types" class="file-card">
+          <div class="file-head">
+            <div>
+              <h3>Component/plsr/plsr_types.h</h3>
+              <span class="path">PLSR 领域公共类型定义，是配置、状态、存储、服务、核心状态机的共同语言。</span>
+            </div>
+            <span class="tag">头文件</span>
+          </div>
+          <h4>宏定义</h4>
+          <table>
+            <tbody>
+              <tr><td><code>__PLSR_TYPES_H__</code></td><td>头文件保护宏。</td></tr>
+              <tr><td><code>PLSR_MAX_CHANNELS</code></td><td>最大通道数，当前为 1。</td></tr>
+              <tr><td><code>PLSR_MAX_SEGMENTS</code></td><td>最大运动段数，当前为 10。</td></tr>
+              <tr><td><code>PLSR_FREQ_MIN_HZ</code> / <code>PLSR_FREQ_MAX_HZ</code></td><td>频率边界，1 Hz 到 100000 Hz。</td></tr>
+              <tr><td><code>PLSR_DEFAULT_SLAVE_ID</code></td><td>Modbus 默认从站地址，当前为 1。</td></tr>
+            </tbody>
+          </table>
+          <h4>枚举与结构体</h4>
+          <table>
+            <thead><tr><th>名称</th><th>成员/字段</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>PlsrAccelMode</code></td><td><code>PLSR_ACCEL_LINEAR</code>、<code>PLSR_ACCEL_S_CURVE</code>、<code>PLSR_ACCEL_SINE</code></td><td>选择线性、S 曲线或正弦缓动的加减速方式。</td></tr>
+              <tr><td><code>PlsrRunMode</code></td><td><code>PLSR_RUN_RELATIVE</code>、<code>PLSR_RUN_ABSOLUTE</code></td><td>决定段脉冲数解释为相对位移还是绝对位置。</td></tr>
+              <tr><td><code>PlsrWaitCondition</code></td><td><code>PLSR_WAIT_PULSE_DONE</code>、<code>PLSR_WAIT_EXT_RISING</code></td><td>定义每段结束条件：脉冲完成或外部上升沿。</td></tr>
+              <tr><td><code>PlsrState</code></td><td><code>IDLE</code>、<code>DIR_DELAY</code>、<code>RUNNING</code>、<code>WAIT_EXT</code>、<code>DONE</code>、<code>ERROR</code></td><td>核心状态机运行状态。</td></tr>
+              <tr><td><code>PlsrResult</code></td><td><code>OK</code>、<code>BUSY</code>、非法频率、非法段数、硬件错误、存储错误等</td><td>统一错误码，用于核心、服务、存储、Modbus 转换。</td></tr>
+              <tr><td><code>PlsrSegmentConfig</code></td><td><code>freq_hz</code>、<code>pulse_count</code>、<code>wait_condition</code>、<code>jump_segment</code></td><td>单段运动配置：目标频率、脉冲数、等待条件和跳转段。</td></tr>
+              <tr><td><code>PlsrConfig</code></td><td>端子、方向延时、方向逻辑、加速模式、运行模式、段数、起始段、默认速度、加减速时间、保留字段、<code>segments[10]</code></td><td>一次运动任务的完整配置。</td></tr>
+              <tr><td><code>PlsrRecord</code></td><td><code>total_distance</code>、<code>position</code></td><td>需要持久化的累计距离和当前位置。</td></tr>
+              <tr><td><code>PlsrStatus</code></td><td>状态、错误、当前段、当前频率、任务发送脉冲、当前段目标/已发脉冲、累计距离、位置</td><td>对外读取的实时状态快照。</td></tr>
+            </tbody>
+          </table>
+          <p class="mini">变量：无。函数：无。</p>
+        </article>
+
+        <article id="plsr-config" class="file-card">
+          <div class="file-head">
+            <div>
+              <h3>Component/plsr/plsr_config.h / plsr_config.c</h3>
+              <span class="path">配置默认值、配置校验、段跳转和当前段频率寄存器识别。</span>
+            </div>
+            <span class="tag">配置层</span>
+          </div>
+          <h4>plsr_config.h</h4>
+          <p>宏：<code>__PLSR_CONFIG_H__</code> 为头文件保护宏。结构体、变量：无新增，复用 <code>plsr_types.h</code>。</p>
+          <table>
+            <thead><tr><th>函数声明</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>plsr_config_set_defaults</code></td><td>写入一套可启动的默认配置。</td></tr>
+              <tr><td><code>plsr_config_validate_for_start</code></td><td>启动前完整校验配置合法性。</td></tr>
+              <tr><td><code>plsr_config_next_segment</code></td><td>根据当前段和跳转设置计算下一段。</td></tr>
+              <tr><td><code>plsr_config_is_current_freq_addr</code></td><td>判断某个 Modbus 地址是否为当前运行段的频率高/低字。</td></tr>
+            </tbody>
+          </table>
+          <h4>plsr_config.c</h4>
+          <p>宏、结构体、文件级变量：无。</p>
+          <table>
+            <thead><tr><th>函数</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>is_freq_valid</code></td><td>静态工具函数，判断频率是否落在全局最小/最大范围内。</td></tr>
+              <tr><td><code>plsr_config_set_defaults</code></td><td>清零配置并设置默认端子、相对模式、线性加减速、1 段、起始段 1、默认速度 1 Hz，第一段频率 1000 Hz。</td></tr>
+              <tr><td><code>plsr_config_next_segment</code></td><td>优先使用当前段的 <code>jump_segment</code>，否则顺序进入下一段；末段返回 0 表示结束。</td></tr>
+              <tr><td><code>validate_basic_fields</code></td><td>校验端子编号、方向逻辑、加速模式、运行模式、段数、起始段和默认速度。</td></tr>
+              <tr><td><code>validate_segments</code></td><td>逐段校验频率、等待条件和跳转段范围。</td></tr>
+              <tr><td><code>plsr_config_validate_for_start</code></td><td>组合基础字段校验和段校验，返回统一 <code>PlsrResult</code>。</td></tr>
+              <tr><td><code>plsr_config_is_current_freq_addr</code></td><td>按 <code>0x1100 + (segment-1)*0x10</code> 判断当前段频率高字/低字地址。</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article id="plsr-profile" class="file-card">
+          <div class="file-head">
+            <div>
+              <h3>Component/plsr/plsr_profile.h / plsr_profile.c</h3>
+              <span class="path">根据起始频率、目标频率和加减速时间生成运行中的频率曲线。</span>
+            </div>
+            <span class="tag">曲线层</span>
+          </div>
+          <h4>plsr_profile.h</h4>
+          <p>宏：<code>__PLSR_PROFILE_H__</code> 为头文件保护宏。变量：无。</p>
+          <table>
+            <thead><tr><th>结构体/函数</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>PlsrProfilePlan</code></td><td>包含 <code>mode</code>、<code>start_freq_hz</code>、<code>target_freq_hz</code>、<code>ramp_time_ms</code>，表示一次从起始频率到目标频率的斜坡计划。</td></tr>
+              <tr><td><code>plsr_profile_build</code></td><td>构建斜坡计划。</td></tr>
+              <tr><td><code>plsr_profile_eval</code></td><td>按已运行时间计算当前应输出频率。</td></tr>
+            </tbody>
+          </table>
+          <h4>plsr_profile.c</h4>
+          <table>
+            <thead><tr><th>宏/变量</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>PLSR_PROFILE_Q16_ONE</code></td><td>Q16 比例满量程，使用 65535 表示 1.0。</td></tr>
+              <tr><td><code>s_sine_ease_q16[17]</code></td><td>正弦缓动查表数据，17 个点覆盖 0 到满量程。</td></tr>
+            </tbody>
+          </table>
+          <table>
+            <thead><tr><th>函数</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>clamp_freq</code></td><td>把频率限制在 PLSR 支持范围内。</td></tr>
+              <tr><td><code>ease_factor_q16</code></td><td>根据模式和时间计算 Q16 缓动因子；支持线性、二次 S 曲线、正弦查表插值。</td></tr>
+              <tr><td><code>interp_freq</code></td><td>根据起止频率和 Q16 因子插值得到当前频率。</td></tr>
+              <tr><td><code>plsr_profile_build</code></td><td>设置曲线模式、起止频率，并根据升速或降速选择加速时间或减速时间。</td></tr>
+              <tr><td><code>plsr_profile_eval</code></td><td>若斜坡结束则返回目标频率，否则计算当前缓动频率。</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article id="plsr-core" class="file-card">
+          <div class="file-head">
+            <div>
+              <h3>Component/plsr/plsr_core.h / plsr_core.c</h3>
+              <span class="path">脉冲任务核心状态机，负责分段运动、方向切换、频率动态更新、外部触发等待和位置累计。</span>
+            </div>
+            <span class="tag">核心状态机</span>
+          </div>
+          <h4>plsr_core.h</h4>
+          <p>宏：<code>__PLSR_CORE_H__</code> 为头文件保护宏。文件级变量：无。</p>
+          <table>
+            <thead><tr><th>结构体</th><th>字段说明</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><code>struct PlsrCore</code></td>
+                <td>
+                  <code>active_config</code> 保存本次运行配置；<code>record</code> 保存累计距离和位置；
+                  <code>state</code> 与 <code>last_error</code> 保存状态机结果；<code>current_segment</code>、<code>job_sent_pulses</code>、
+                  <code>segment_sent_pulses</code>、<code>target_abs_pulses</code> 跟踪脉冲进度；
+                  <code>current_dir_sign</code>、<code>dir_sign_valid</code>、<code>dir_set_tick</code> 管理方向与方向延时；
+                  <code>segment_start_tick</code>、<code>current_freq_hz</code>、<code>next_start_freq_hz</code> 管理频率曲线；
+                  <code>ext_latched</code>、<code>ext_stop_latched</code> 处理外部上升沿；
+                  <code>freq_request_pending</code>、<code>requested_freq_hz</code> 支持运行中改当前段频率；
+                  <code>profile</code> 保存当前曲线计划。
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <table>
+            <thead><tr><th>函数声明</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>plsr_core_init</code></td><td>初始化核心对象。</td></tr>
+              <tr><td><code>plsr_core_start</code></td><td>以配置和记录启动一次任务。</td></tr>
+              <tr><td><code>plsr_core_stop</code></td><td>立即停止当前任务。</td></tr>
+              <tr><td><code>plsr_core_task_1ms</code></td><td>1 ms 周期驱动状态机。</td></tr>
+              <tr><td><code>plsr_core_on_ext_rising</code></td><td>外部上升沿事件入口。</td></tr>
+              <tr><td><code>plsr_core_request_current_freq</code></td><td>请求运行中修改当前段目标频率。</td></tr>
+              <tr><td><code>plsr_core_get_status</code></td><td>读取状态快照。</td></tr>
+              <tr><td><code>plsr_core_set_record</code> / <code>plsr_core_get_record</code></td><td>设置或读取持久化记录。</td></tr>
+              <tr><td><code>plsr_core_is_idle</code></td><td>判断核心是否可接受新任务或写入敏感状态。</td></tr>
+            </tbody>
+          </table>
+          <h4>plsr_core.c</h4>
+          <p>宏、文件级静态变量：无。核心依赖 <code>plsr_config</code>、<code>plsr_port</code>、<code>plsr_hw</code>。</p>
+          <table>
+            <thead><tr><th>函数</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>clamp_freq</code></td><td>限制频率范围。</td></tr>
+              <tr><td><code>abs_i64_to_u32</code></td><td>把有符号 64 位位移绝对值转换为 32 位脉冲数，超限饱和到 <code>0xFFFFFFFF</code>。</td></tr>
+              <tr><td><code>current_waits_ext</code></td><td>判断当前段是否设置为等待外部上升沿。</td></tr>
+              <tr><td><code>add_delta_pulses</code></td><td>在临界区累加总距离、任务已发脉冲、当前段已发脉冲，并按方向更新当前位置。</td></tr>
+              <tr><td><code>finish_done</code></td><td>停止硬件输出，进入 DONE，并清理当前段、频率、外部触发和调频请求。</td></tr>
+              <tr><td><code>enter_error</code></td><td>停止硬件并进入 ERROR，记录错误码。</td></tr>
+              <tr><td><code>segment_elapsed_ms</code></td><td>计算当前段从开始到现在的毫秒数。</td></tr>
+              <tr><td><code>build_current_profile</code></td><td>根据当前配置构建频率斜坡计划。</td></tr>
+              <tr><td><code>update_current_freq_snapshot</code></td><td>在运行态读取曲线当前频率并保存，供下一段平滑衔接。</td></tr>
+              <tr><td><code>update_running_frequency</code></td><td>周期计算新频率并调用硬件更新定时器；失败进入硬件错误。</td></tr>
+              <tr><td><code>start_current_segment_output</code></td><td>设置段起始 tick、初始频率并启动硬件输出。</td></tr>
+              <tr><td><code>begin_segment</code></td><td>进入指定段；处理相对/绝对位移、零位移跳段、方向切换、方向延时、频率曲线和硬件启动。</td></tr>
+              <tr><td><code>complete_segment</code></td><td>根据配置找到下一段；没有下一段则完成任务。</td></tr>
+              <tr><td><code>apply_frequency_request</code></td><td>处理运行中频率修改请求，更新当前段配置并重建曲线。</td></tr>
+              <tr><td><code>run_dir_delay</code></td><td>方向延时状态处理；延时结束后启动输出，也可响应外部触发提前完成段。</td></tr>
+              <tr><td><code>run_running</code></td><td>运行态主逻辑：轮询硬件、累计脉冲、处理外部停止、段完成、等待外部、动态调频。</td></tr>
+              <tr><td><code>run_wait_ext</code></td><td>等待外部触发状态处理，触发后进入下一段。</td></tr>
+              <tr><td><code>plsr_core_init</code></td><td>清零对象、设置默认配置、进入 IDLE。</td></tr>
+              <tr><td><code>plsr_core_start</code></td><td>校验配置、复制配置和记录、配置硬件端子，并从起始段启动。</td></tr>
+              <tr><td><code>plsr_core_stop</code></td><td>运行/方向延时/等待外部状态下立即停止硬件，结算脉冲并进入 DONE。</td></tr>
+              <tr><td><code>plsr_core_task_1ms</code></td><td>按状态分发到方向延时、运行、等待外部逻辑；DONE 会回到 IDLE。</td></tr>
+              <tr><td><code>plsr_core_on_ext_rising</code></td><td>如果当前段等待外部，上升沿会立即停 PWM 或锁存事件。</td></tr>
+              <tr><td><code>plsr_core_request_current_freq</code></td><td>在 RUNNING 或 DIR_DELAY 状态下记录新的目标频率请求。</td></tr>
+              <tr><td><code>plsr_core_get_status</code></td><td>临界区复制状态、进度、频率、距离和位置到 <code>PlsrStatus</code>。</td></tr>
+              <tr><td><code>plsr_core_set_record</code></td><td>临界区覆盖内部记录。</td></tr>
+              <tr><td><code>plsr_core_get_record</code></td><td>临界区读取内部记录。</td></tr>
+              <tr><td><code>plsr_core_is_idle</code></td><td>把 IDLE、DONE、ERROR 都视为可操作的空闲状态。</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article id="plsr-port" class="file-card">
+          <div class="file-head">
+            <div>
+              <h3>Component/plsr/plsr_port.h / plsr_port.c</h3>
+              <span class="path">隔离 HAL tick 与临界区操作，减少核心业务对底层寄存器的直接依赖。</span>
+            </div>
+            <span class="tag">平台适配</span>
+          </div>
+          <p>宏：<code>__PLSR_PORT_H__</code> 为头文件保护宏。变量：无。</p>
+          <table>
+            <thead><tr><th>类型/函数</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>typedef uint32_t PlsrIrqState</code></td><td>保存进入临界区前的 PRIMASK 中断屏蔽状态。</td></tr>
+              <tr><td><code>plsr_port_get_tick_ms</code></td><td>返回 <code>HAL_GetTick()</code>。</td></tr>
+              <tr><td><code>plsr_port_enter_critical</code></td><td>读取 PRIMASK，关闭全局中断，并返回原状态。</td></tr>
+              <tr><td><code>plsr_port_exit_critical</code></td><td>按进入时保存的状态恢复 PRIMASK。</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article id="plsr-storage" class="file-card">
+          <div class="file-head">
+            <div>
+              <h3>Component/plsr/plsr_storage.h / plsr_storage.c</h3>
+              <span class="path">负责配置和记录的 Flash 持久化，包含魔数、版本、长度和 CRC32 校验。</span>
+            </div>
+            <span class="tag">存储层</span>
+          </div>
+          <h4>plsr_storage.h</h4>
+          <p>宏：<code>__PLSR_STORAGE_H__</code> 为头文件保护宏。结构体、变量：无新增。</p>
+          <table>
+            <thead><tr><th>函数声明</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>plsr_storage_set_defaults</code></td><td>设置默认配置和默认记录。</td></tr>
+              <tr><td><code>plsr_storage_load</code></td><td>从 Flash 加载并校验配置与记录。</td></tr>
+              <tr><td><code>plsr_storage_save</code></td><td>擦写 Flash 保存当前配置与记录。</td></tr>
+              <tr><td><code>plsr_storage_mark_dirty</code></td><td>标记数据变脏并记录时间。</td></tr>
+              <tr><td><code>plsr_storage_task_100ms</code></td><td>周期性延迟保存任务。</td></tr>
+            </tbody>
+          </table>
+          <h4>plsr_storage.c</h4>
+          <table>
+            <thead><tr><th>宏/结构体/变量</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>PLSR_STORAGE_MAGIC</code></td><td>Flash 镜像魔数 <code>0x504C5352</code>，用于识别有效数据。</td></tr>
+              <tr><td><code>PLSR_STORAGE_VERSION</code></td><td>存储格式版本号，当前为 1。</td></tr>
+              <tr><td><code>PLSR_STORAGE_SAVE_DELAY_MS</code></td><td>脏数据延迟保存时间，当前为 200 ms。</td></tr>
+              <tr><td><code>PlsrStorageImage</code></td><td>Flash 镜像结构：<code>magic</code>、<code>version</code>、<code>size</code>、<code>crc32</code>、<code>config</code>、<code>record</code>。</td></tr>
+              <tr><td><code>s_storage_dirty</code></td><td>静态脏标志，表示需要保存。</td></tr>
+              <tr><td><code>s_dirty_tick_ms</code></td><td>最近一次标记脏数据的时间戳。</td></tr>
+            </tbody>
+          </table>
+          <table>
+            <thead><tr><th>函数</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>crc32_update</code></td><td>标准反射式 CRC32 增量计算。</td></tr>
+              <tr><td><code>image_crc32</code></td><td>计算镜像 CRC，跳过 <code>crc32</code> 字段本身。</td></tr>
+              <tr><td><code>plsr_storage_set_defaults</code></td><td>调用配置默认值函数，并清零记录。</td></tr>
+              <tr><td><code>plsr_storage_load</code></td><td>读取 <code>MY_CONFIG_ADDR</code> 数据，校验魔数、版本、大小、CRC 和配置合法性；失败则返回默认值。</td></tr>
+              <tr><td><code>plsr_storage_save</code></td><td>组包镜像、擦除配置页、写入 Flash，成功后清除脏标志。</td></tr>
+              <tr><td><code>plsr_storage_mark_dirty</code></td><td>置脏并记录当前 tick，用于合并频繁写入。</td></tr>
+              <tr><td><code>plsr_storage_task_100ms</code></td><td>仅在允许写入、数据变脏且超过延迟时间后执行保存。</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article id="plsr-service" class="file-card">
+          <div class="file-head">
+            <div>
+              <h3>Component/plsr/plsr_service.h / plsr_service.c</h3>
+              <span class="path">业务服务门面，统一管理配置、状态、寄存器读写、启动命令、外部输入和持久化触发。</span>
+            </div>
+            <span class="tag">服务层</span>
+          </div>
+          <h4>plsr_service.h</h4>
+          <p>宏：<code>__PLSR_SERVICE_H__</code> 为头文件保护宏。结构体、变量：无新增。</p>
+          <table>
+            <thead><tr><th>函数声明</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>plsr_service_init</code></td><td>初始化服务、存储、核心和硬件。</td></tr>
+              <tr><td><code>plsr_service_task_1ms</code></td><td>1 ms 周期运行核心状态机并检测记录变化。</td></tr>
+              <tr><td><code>plsr_service_storage_task_100ms</code></td><td>100 ms 周期调度延迟保存。</td></tr>
+              <tr><td><code>plsr_service_on_exti</code></td><td>外部中断入口，带消抖。</td></tr>
+              <tr><td><code>plsr_time_ms</code></td><td>统一时间读取接口。</td></tr>
+              <tr><td><code>plsr_service_start_once</code></td><td>按当前配置启动一次运动。</td></tr>
+              <tr><td><code>plsr_service_clear_total_distance</code></td><td>清零累计距离。</td></tr>
+              <tr><td><code>plsr_service_set_position</code></td><td>在空闲时设置当前位置。</td></tr>
+              <tr><td><code>plsr_service_get_config</code> / <code>plsr_service_set_config</code></td><td>读取或写入待执行配置。</td></tr>
+              <tr><td><code>plsr_service_write_register</code> / <code>plsr_service_write_registers</code></td><td>处理单个或多个 Modbus 保持寄存器写入。</td></tr>
+              <tr><td><code>plsr_service_read_register</code></td><td>按地址返回保持寄存器值。</td></tr>
+              <tr><td><code>plsr_service_get_status</code></td><td>读取运行状态。</td></tr>
+            </tbody>
+          </table>
+          <h4>plsr_service.c</h4>
+          <table>
+            <thead><tr><th>宏/变量</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>PLSR_EXT_DEBOUNCE_MS</code></td><td>外部输入消抖时间，20 ms。</td></tr>
+              <tr><td><code>s_core</code></td><td>唯一的 PLSR 核心状态机实例。</td></tr>
+              <tr><td><code>s_pending_config</code></td><td>当前待执行配置，Modbus 写配置会更新它。</td></tr>
+              <tr><td><code>s_last_ext_tick_ms</code></td><td>最近一次有效外部触发时间，用于消抖。</td></tr>
+            </tbody>
+          </table>
+          <table>
+            <thead><tr><th>函数</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>low_u32_from_u64</code></td><td>取 64 位无符号值低 32 位，用于寄存器拆分。</td></tr>
+              <tr><td><code>low_u32_from_i64</code></td><td>取 64 位有符号值低 32 位，用于位置寄存器拆分。</td></tr>
+              <tr><td><code>records_equal</code></td><td>比较累计距离和位置是否变化。</td></tr>
+              <tr><td><code>make_hw_config</code></td><td>从业务配置提取硬件配置。</td></tr>
+              <tr><td><code>plsr_time_ms</code></td><td>返回平台 tick。</td></tr>
+              <tr><td><code>plsr_service_init</code></td><td>加载存储；失败则默认配置；初始化核心记录和硬件。</td></tr>
+              <tr><td><code>plsr_service_task_1ms</code></td><td>执行核心 1 ms 任务，若记录变化则标记存储脏。</td></tr>
+              <tr><td><code>plsr_service_storage_task_100ms</code></td><td>读取配置和记录，并在核心空闲时允许持久化。</td></tr>
+              <tr><td><code>plsr_service_on_exti</code></td><td>过滤非外部端子、执行 20 ms 消抖，并把事件传给核心。</td></tr>
+              <tr><td><code>plsr_service_start_once</code></td><td>校验当前配置，读取记录并启动核心。</td></tr>
+              <tr><td><code>plsr_service_clear_total_distance</code></td><td>清零累计距离并标记保存。</td></tr>
+              <tr><td><code>plsr_service_set_position</code></td><td>空闲时写当前位置并标记保存；运行中返回 BUSY。</td></tr>
+              <tr><td><code>plsr_service_get_config</code></td><td>临界区复制待执行配置。</td></tr>
+              <tr><td><code>plsr_service_set_config</code></td><td>校验后临界区替换待执行配置并标记保存。</td></tr>
+              <tr><td><code>request_has_addr</code></td><td>判断一次连续写请求是否包含某地址，可顺便取值。</td></tr>
+              <tr><td><code>request_u32</code></td><td>用连续寄存器写请求中的高低字拼出 32 位值，未写到的半字沿用旧值。</td></tr>
+              <tr><td><code>is_segment_addr</code></td><td>判断地址是否落在 10 个段配置区 <code>0x1100</code> 到 <code>0x1195</code>，并解析段号和偏移。</td></tr>
+              <tr><td><code>is_holding_addr_valid</code></td><td>判断保持寄存器地址是否属于系统、段配置、状态或命令区。</td></tr>
+              <tr><td><code>is_holding_addr_writable</code></td><td>判断地址是否允许写，状态区只允许距离/位置等控制字段。</td></tr>
+              <tr><td><code>precheck_write_request</code></td><td>预检连续写请求地址和命令值，避免非法值进入配置候选。</td></tr>
+              <tr><td><code>apply_scalar_config_write</code></td><td>应用 16 位标量配置写入，如端子、模式、段数、等待条件、跳转段。</td></tr>
+              <tr><td><code>apply_u32_config_writes</code></td><td>应用 32 位配置写入，如默认速度、每段频率、每段脉冲数。</td></tr>
+              <tr><td><code>request_changes_config</code></td><td>判断写请求是否改动配置寄存器。</td></tr>
+              <tr><td><code>request_changes_current_freq</code></td><td>判断写请求是否改动当前运行段频率。</td></tr>
+              <tr><td><code>plsr_service_write_register</code></td><td>单寄存器写入的便捷封装。</td></tr>
+              <tr><td><code>plsr_service_write_registers</code></td><td>Modbus 写入核心逻辑：预检、生成候选配置、处理清零/设位置/启动/强制保存/停止命令、动态调频。</td></tr>
+              <tr><td><code>plsr_service_read_register</code></td><td>按地址映射读取系统配置、段配置、状态和命令寄存器。</td></tr>
+              <tr><td><code>plsr_service_get_status</code></td><td>把状态读取委托给核心。</td></tr>
+            </tbody>
+          </table>
+          <h4>寄存器分区</h4>
+          <table>
+            <thead><tr><th>地址范围</th><th>含义</th></tr></thead>
+            <tbody>
+              <tr><td><code>0x1000-0x100C</code></td><td>系统配置：端子、方向延时、逻辑、加速模式、运行模式、段数、起始段、默认速度、加减速时间。</td></tr>
+              <tr><td><code>0x1100-0x1195</code></td><td>10 段配置，每段 6 个寄存器：频率高低字、脉冲高低字、等待条件、跳转段。</td></tr>
+              <tr><td><code>0x2000-0x200C</code></td><td>状态与记录：累计距离、位置、状态、错误、当前段、段脉冲、当前频率、任务脉冲。</td></tr>
+              <tr><td><code>0x3000-0x3003</code></td><td>命令区：启动、清累计距离、强制保存、停止当前任务。</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article id="modbus-app" class="file-card">
+          <div class="file-head">
+            <div>
+              <h3>Component/modbus/modbus_app.h / modbus_app.c</h3>
+              <span class="path">agile_modbus 与 PLSR 服务层之间的适配层，定义保持寄存器映射和地址校验。</span>
+            </div>
+            <span class="tag">Modbus 适配</span>
+          </div>
+          <h4>modbus_app.h</h4>
+          <p>宏：<code>__MODBUS_APP_H__</code> 为头文件保护宏。结构体、变量：无新增。</p>
+          <table>
+            <thead><tr><th>函数声明</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>modbus_app_init</code></td><td>Modbus 业务适配初始化入口，当前为空实现。</td></tr>
+              <tr><td><code>modbus_app_get_slave_util</code></td><td>返回 agile_modbus 从站工具映射表。</td></tr>
+            </tbody>
+          </table>
+          <h4>modbus_app.c</h4>
+          <table>
+            <thead><tr><th>宏/变量</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>DEFINE_SEGMENT_ACCESS(idx, base_addr)</code></td><td>生成每个段配置区的 get/set 函数，减少 10 段重复代码。</td></tr>
+              <tr><td><code>s_holding_maps[]</code></td><td>保持寄存器映射表，覆盖系统配置、10 个段、状态区、命令区。</td></tr>
+              <tr><td><code>s_slave_util</code></td><td>agile_modbus 从站工具配置，仅启用 holding register 映射和地址检查回调。</td></tr>
+            </tbody>
+          </table>
+          <table>
+            <thead><tr><th>函数</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>is_segment_addr</code></td><td>判断地址是否属于段配置区。</td></tr>
+              <tr><td><code>is_holding_addr_valid</code></td><td>判断保持寄存器地址是否存在。</td></tr>
+              <tr><td><code>is_holding_addr_writable</code></td><td>判断保持寄存器地址是否可写。</td></tr>
+              <tr><td><code>plsr_result_to_modbus</code></td><td>把 <code>PlsrResult</code> 转换为 Modbus 异常码。</td></tr>
+              <tr><td><code>get_register_block</code></td><td>按起始地址和数量批量读取寄存器到 agile_modbus 缓冲区。</td></tr>
+              <tr><td><code>set_register_block</code></td><td>把 agile_modbus 写缓冲区指定范围提交给 <code>plsr_service_write_registers</code>。</td></tr>
+              <tr><td><code>system_get</code> / <code>system_set</code></td><td>系统配置区 <code>0x1000-0x100C</code> 的读写入口。</td></tr>
+              <tr><td><code>status_get</code> / <code>status_set</code></td><td>状态区 <code>0x2000-0x200C</code> 的读写入口。</td></tr>
+              <tr><td><code>command_get</code> / <code>command_set</code></td><td>命令区 <code>0x3000-0x3003</code> 的读写入口。</td></tr>
+              <tr><td><code>segment_1_get</code> / <code>segment_1_set</code></td><td>段 1 配置区 <code>0x1100-0x1105</code> 的读写入口。</td></tr>
+              <tr><td><code>segment_2_get</code> / <code>segment_2_set</code></td><td>段 2 配置区 <code>0x1110-0x1115</code> 的读写入口。</td></tr>
+              <tr><td><code>segment_3_get</code> / <code>segment_3_set</code></td><td>段 3 配置区 <code>0x1120-0x1125</code> 的读写入口。</td></tr>
+              <tr><td><code>segment_4_get</code> / <code>segment_4_set</code></td><td>段 4 配置区 <code>0x1130-0x1135</code> 的读写入口。</td></tr>
+              <tr><td><code>segment_5_get</code> / <code>segment_5_set</code></td><td>段 5 配置区 <code>0x1140-0x1145</code> 的读写入口。</td></tr>
+              <tr><td><code>segment_6_get</code> / <code>segment_6_set</code></td><td>段 6 配置区 <code>0x1150-0x1155</code> 的读写入口。</td></tr>
+              <tr><td><code>segment_7_get</code> / <code>segment_7_set</code></td><td>段 7 配置区 <code>0x1160-0x1165</code> 的读写入口。</td></tr>
+              <tr><td><code>segment_8_get</code> / <code>segment_8_set</code></td><td>段 8 配置区 <code>0x1170-0x1175</code> 的读写入口。</td></tr>
+              <tr><td><code>segment_9_get</code> / <code>segment_9_set</code></td><td>段 9 配置区 <code>0x1180-0x1185</code> 的读写入口。</td></tr>
+              <tr><td><code>segment_10_get</code> / <code>segment_10_set</code></td><td>段 10 配置区 <code>0x1190-0x1195</code> 的读写入口。</td></tr>
+              <tr><td><code>modbus_app_addr_check</code></td><td>检查从站地址、功能码、寄存器数量、地址合法性和写权限。</td></tr>
+              <tr><td><code>modbus_app_init</code></td><td>当前空实现，保留业务初始化入口。</td></tr>
+              <tr><td><code>modbus_app_get_slave_util</code></td><td>返回 <code>s_slave_util</code> 地址。</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article id="my-define" class="file-card">
+          <div class="file-head">
+            <div>
+              <h3>MyDrivers/my_define.h</h3>
+              <span class="path">工程级公共包含文件，集中引入 C 标准库、CubeMX 外设头和 Modbus 编译开关。</span>
+            </div>
+            <span class="tag">公共头</span>
+          </div>
+          <table>
+            <thead><tr><th>宏/声明</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>__MY_DEFINE_H__</code></td><td>头文件保护宏。</td></tr>
+              <tr><td><code>AGILE_MODBUS_USING_RTU</code></td><td>启用 agile_modbus RTU 支持。</td></tr>
+              <tr><td><code>AGILE_MODBUS_USING_TCP</code></td><td>关闭 agile_modbus TCP 支持。</td></tr>
+              <tr><td><code>my_printf</code></td><td>格式化输出函数声明，实现在 USART 驱动中。</td></tr>
+            </tbody>
+          </table>
+          <p class="mini">结构体、变量：无。该文件还统一包含 <code>main.h</code>、<code>dma.h</code>、<code>tim.h</code>、<code>usart.h</code>、<code>gpio.h</code>。</p>
+        </article>
+
+        <article id="plsr-board" class="file-card">
+          <div class="file-head">
+            <div>
+              <h3>MyDrivers/motor_driver/plsr_board.h</h3>
+              <span class="path">板级资源映射，把业务端子编号映射到具体 GPIO、定时器和 DMA 句柄。</span>
+            </div>
+            <span class="tag">板级配置</span>
+          </div>
+          <table>
+            <thead><tr><th>宏/变量声明</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>__PLSR_BOARD_H__</code></td><td>头文件保护宏。</td></tr>
+              <tr><td><code>PLSR_CHANNEL_COUNT</code></td><td>硬件通道数量，当前为 1。</td></tr>
+              <tr><td><code>PLSR_HW_TIMER_CLOCK_HZ</code></td><td>硬件定时器时钟，72 MHz。</td></tr>
+              <tr><td><code>PLSR_HW_MAX_FREQ_HZ</code> / <code>PLSR_HW_MIN_FREQ_HZ</code></td><td>硬件支持频率范围，1 Hz 到 100000 Hz。</td></tr>
+              <tr><td><code>PLSR_HW_STOP_ARM_WINDOW</code></td><td>剩余脉冲进入 5000 以内时布置 DMA 自动停止。</td></tr>
+              <tr><td><code>PLSR_Y0..Y3_PULSE_GPIO_PORT/PIN</code></td><td>脉冲输出端子映射，当前都映射到 <code>GPIOA</code> / <code>GPIO_PIN_6</code>。</td></tr>
+              <tr><td><code>PLSR_Y12..Y15_DIR_GPIO_PORT/PIN</code></td><td>方向输出端子映射，当前都映射到 <code>GPIOA</code> / <code>GPIO_PIN_7</code>。</td></tr>
+              <tr><td><code>PLSR_X4/X5_EXT_GPIO_PORT/PIN/IRQN</code></td><td>外部输入端子映射，当前都映射到 <code>GPIOA</code> / <code>GPIO_PIN_5</code> / <code>EXTI9_5_IRQn</code>。</td></tr>
+              <tr><td><code>extern htim3</code>、<code>htim4</code>、<code>hdma_tim4_ch1</code></td><td>引用 CubeMX 生成的定时器和 DMA 句柄。</td></tr>
+            </tbody>
+          </table>
+          <p class="mini">结构体、函数：无。</p>
+        </article>
+
+        <article id="plsr-hw" class="file-card">
+          <div class="file-head">
+            <div>
+              <h3>MyDrivers/motor_driver/plsr_hw.h / plsr_hw.c</h3>
+              <span class="path">硬件驱动层，直接操作 TIM3、TIM4、DMA 和 GPIO 来输出有限数量脉冲。</span>
+            </div>
+            <span class="tag">硬件驱动</span>
+          </div>
+          <h4>plsr_hw.h</h4>
+          <p>宏：<code>__PLSR_HW_H__</code> 为头文件保护宏。变量：无。</p>
+          <table>
+            <thead><tr><th>枚举/结构体/函数声明</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>PlsrHwResult</code></td><td>硬件层返回码：OK、参数错误、忙、不支持。</td></tr>
+              <tr><td><code>PlsrTerminal</code></td><td>端子枚举：Y0 至 Y3、Y12 至 Y15、X4、X5。</td></tr>
+              <tr><td><code>PlsrHwConfig</code></td><td>硬件配置：<code>channel_id</code>、脉冲端子、方向端子、外部端子、方向正逻辑。</td></tr>
+              <tr><td><code>PlsrHwPollResult</code></td><td>轮询结果：本次新增脉冲数和 PWM 是否已停止。</td></tr>
+              <tr><td><code>plsr_hw_init</code></td><td>初始化通道硬件状态。</td></tr>
+              <tr><td><code>plsr_hw_configure_terminals</code></td><td>更新通道端子配置。</td></tr>
+              <tr><td><code>plsr_hw_set_direction</code></td><td>设置方向输出。</td></tr>
+              <tr><td><code>plsr_hw_set_frequency</code></td><td>设置 PWM 频率。</td></tr>
+              <tr><td><code>plsr_hw_start</code></td><td>启动指定脉冲数输出。</td></tr>
+              <tr><td><code>plsr_hw_stop_now</code></td><td>立即停止并返回结算脉冲数。</td></tr>
+              <tr><td><code>plsr_hw_poll</code></td><td>轮询脉冲进度和自动停止状态。</td></tr>
+              <tr><td><code>plsr_hw_is_running</code></td><td>查询通道运行状态。</td></tr>
+              <tr><td><code>plsr_hw_is_ext_pin</code></td><td>判断 GPIO pin 是否属于外部输入端子。</td></tr>
+            </tbody>
+          </table>
+          <h4>plsr_hw.c</h4>
+          <table>
+            <thead><tr><th>结构体/变量</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>PlsrHwChannel</code></td><td>内部通道对象：PWM 定时器、PWM 通道、计数定时器、停止 DMA、停止写入值、上次计数、累计脉冲、目标脉冲、DMA 布置状态、运行状态、端子配置。</td></tr>
+              <tr><td><code>s_channels[PLSR_CHANNEL_COUNT]</code></td><td>静态通道表，当前唯一通道绑定 <code>htim3</code>、<code>TIM_CHANNEL_1</code>、<code>htim4</code>、<code>hdma_tim4_ch1</code>。</td></tr>
+              <tr><td><code>s_dir_ports[4]</code> / <code>s_dir_pins[4]</code></td><td>方向端子到 GPIO 端口和 pin 的查表。</td></tr>
+              <tr><td><code>s_ext_pins[2]</code></td><td>外部输入 pin 查表。</td></tr>
+            </tbody>
+          </table>
+          <table>
+            <thead><tr><th>函数</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>is_channel_valid</code></td><td>检查通道号是否在范围内。</td></tr>
+              <tr><td><code>is_config_valid</code></td><td>检查配置指针、通道、端子和方向逻辑是否合法。</td></tr>
+              <tr><td><code>calc_timer_params</code></td><td>根据目标频率计算 TIM3 的 PSC 和 ARR，保证落在 16 位定时器范围内。</td></tr>
+              <tr><td><code>dma_stop_disable</code></td><td>关闭 TIM4 CC1 DMA、禁用 DMA 通道并清标志。</td></tr>
+              <tr><td><code>dma_stop_arm</code></td><td>配置 DMA：当 TIM4 CC1 事件发生时，把 <code>stop_cr1_value</code> 写入 TIM3 CR1，从而关闭 PWM 计数。</td></tr>
+              <tr><td><code>stop_timers_only</code></td><td>仅停止 TIM3/TIM4 和停止 DMA，不修改业务统计。</td></tr>
+              <tr><td><code>settle_counter_delta</code></td><td>根据 TIM4 当前计数和上次计数结算新增脉冲，并限制不超过剩余目标脉冲。</td></tr>
+              <tr><td><code>plsr_hw_init</code></td><td>校验配置、初始化通道字段、停止定时器。</td></tr>
+              <tr><td><code>plsr_hw_configure_terminals</code></td><td>仅更新通道端子配置。</td></tr>
+              <tr><td><code>plsr_hw_set_direction</code></td><td>按方向和正逻辑计算 GPIO 电平并写方向脚。</td></tr>
+              <tr><td><code>plsr_hw_set_frequency</code></td><td>计算并写入 TIM3 PSC、ARR、CCR1；未运行时触发更新事件。</td></tr>
+              <tr><td><code>plsr_hw_start</code></td><td>清零计数、设置目标脉冲、必要时布置停止 DMA，然后启动 TIM4 计数和 TIM3 PWM。</td></tr>
+              <tr><td><code>plsr_hw_stop_now</code></td><td>临界区内结算脉冲、停止定时器、清运行状态，并返回停止结果。</td></tr>
+              <tr><td><code>plsr_hw_poll</code></td><td>结算本轮脉冲，剩余脉冲进入窗口时布置 DMA；达到目标或 PWM 停止时关闭输出。</td></tr>
+              <tr><td><code>plsr_hw_is_running</code></td><td>临界区读取通道运行状态。</td></tr>
+              <tr><td><code>plsr_hw_is_ext_pin</code></td><td>判断传入 pin 是否等于 X4 或 X5 映射 pin。</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article id="flash-driver" class="file-card">
+          <div class="file-head">
+            <div>
+              <h3>MyDrivers/flash_driver/flash_driver.h / flash_driver.c</h3>
+              <span class="path">STM32F103 内部 Flash 基础读写封装，供 PLSR 存储层保存配置与记录。</span>
+            </div>
+            <span class="tag">Flash 驱动</span>
+          </div>
+          <h4>flash_driver.h</h4>
+          <table>
+            <thead><tr><th>宏/函数声明</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>__FLASH_DRIVER_H</code></td><td>头文件保护宏。</td></tr>
+              <tr><td><code>STM32_FLASH_START_ADDR</code></td><td>内部 Flash 起始地址 <code>0x08000000</code>。</td></tr>
+              <tr><td><code>STM32_FLASH_END_ADDR</code></td><td>内部 Flash 结束地址 <code>0x0800FFFF</code>，对应 64 KB。</td></tr>
+              <tr><td><code>STM32_FLASH_PAGE_SIZE</code></td><td>页大小 1024 字节。</td></tr>
+              <tr><td><code>MY_CONFIG_ADDR</code></td><td>配置存储地址 <code>0x0800FC00</code>，位于最后一页。</td></tr>
+              <tr><td><code>Flash_ReadWord</code></td><td>读取单个 32 位字。</td></tr>
+              <tr><td><code>Flash_ReadData</code></td><td>连续读取 32 位字数组。</td></tr>
+              <tr><td><code>Flash_ErasePage</code></td><td>擦除指定地址所在页。</td></tr>
+              <tr><td><code>Flash_WriteWord</code></td><td>写入单个 32 位字。</td></tr>
+              <tr><td><code>Flash_WriteData</code></td><td>连续写入 32 位字数组。</td></tr>
+            </tbody>
+          </table>
+          <h4>flash_driver.c</h4>
+          <p>结构体、文件级变量：无。</p>
+          <table>
+            <thead><tr><th>函数</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>Flash_ReadWord</code></td><td>通过绝对地址指针解引用读取 32 位数据。</td></tr>
+              <tr><td><code>Flash_ReadData</code></td><td>按 4 字节步进读取多个 32 位字。</td></tr>
+              <tr><td><code>Flash_ErasePage</code></td><td>地址范围校验、解锁 Flash、调用 HAL 页擦除、重新上锁。</td></tr>
+              <tr><td><code>Flash_WriteWord</code></td><td>范围校验后解锁 Flash，按 word 编程并上锁。</td></tr>
+              <tr><td><code>Flash_WriteData</code></td><td>范围和长度校验后循环写入多个 word，任何失败都会上锁并返回 false。</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article id="usart-driver" class="file-card">
+          <div class="file-head">
+            <div>
+              <h3>MyDrivers/usart_driver/usart_driver.h / usart_driver.c</h3>
+              <span class="path">USART1 空闲接收 DMA 与 USART3 DMA 格式化输出封装。</span>
+            </div>
+            <span class="tag">串口驱动</span>
+          </div>
+          <h4>usart_driver.h</h4>
+          <table>
+            <thead><tr><th>宏/变量/函数声明</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>__USART_DRIVER_H__</code></td><td>头文件保护宏。</td></tr>
+              <tr><td><code>extern usart1_rx_buffer[256]</code></td><td>业务层读取的 USART1 接收缓冲区。</td></tr>
+              <tr><td><code>extern volatile usart1_rx_flag</code></td><td>USART1 收到一帧数据后的标志。</td></tr>
+              <tr><td><code>extern volatile usart1_rx_len</code></td><td>本次 USART1 接收长度。</td></tr>
+              <tr><td><code>UART_RxIdle_DMA_Init</code></td><td>初始化 USART1 ReceiveToIdle DMA。</td></tr>
+            </tbody>
+          </table>
+          <h4>usart_driver.c</h4>
+          <table>
+            <thead><tr><th>变量</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>hdma_usart1_rx</code></td><td>外部 DMA 句柄声明，来自 CubeMX。</td></tr>
+              <tr><td><code>hdma_usart1_rx_buffer[256]</code></td><td>DMA 直接写入的 USART1 接收缓冲区。</td></tr>
+              <tr><td><code>usart1_rx_buffer[256]</code></td><td>回调中复制出的用户缓冲区，供任务层解析。</td></tr>
+              <tr><td><code>usart1_rx_flag</code></td><td>收到完整帧后置 1。</td></tr>
+              <tr><td><code>usart1_rx_len</code></td><td>收到完整帧的字节数。</td></tr>
+              <tr><td><code>tx_buffer[256]</code></td><td><code>my_printf</code> 内部静态局部发送缓冲区，避免 DMA 发送期间栈变量失效。</td></tr>
+            </tbody>
+          </table>
+          <table>
+            <thead><tr><th>函数</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>my_printf</code></td><td>使用 <code>vsnprintf</code> 格式化字符串，并通过 <code>USART3</code> DMA 发送；若 USART3 忙则直接返回 0。</td></tr>
+              <tr><td><code>UART_RxIdle_DMA_Init</code></td><td>启动 <code>HAL_UARTEx_ReceiveToIdle_DMA</code>，并关闭半传输中断，避免半包打扰。</td></tr>
+              <tr><td><code>HAL_UARTEx_RxEventCallback</code></td><td>USART1 空闲接收回调：停止 DMA、复制数据、记录长度、置标志、清 DMA 缓冲并重新启动接收。</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article id="app-main" class="file-card">
+          <div class="file-head">
+            <div>
+              <h3>MyAPP/my_main.h / my_main.c</h3>
+              <span class="path">业务主入口，把 CubeMX 的 main 循环转交给自定义初始化和调度器。</span>
+            </div>
+            <span class="tag">应用入口</span>
+          </div>
+          <h4>my_main.h</h4>
+          <p>宏：<code>__MY_MAIN_H__</code> 为头文件保护宏。结构体、变量：无。</p>
+          <table>
+            <thead><tr><th>函数声明</th><th>作用</th></tr></thead>
+            <tbody><tr><td><code>my_main</code></td><td>业务主入口。</td></tr></tbody>
+          </table>
+          <h4>my_main.c</h4>
+          <p>宏、结构体、变量：无。</p>
+          <table>
+            <thead><tr><th>函数</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>my_main</code></td><td>初始化 USART1/Modbus、脉冲服务、调度器，输出 <code>PLSR ready</code>，随后无限循环运行调度器。</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article id="scheduler" class="file-card">
+          <div class="file-head">
+            <div>
+              <h3>MyAPP/scheduler.h / scheduler.c</h3>
+              <span class="path">基于 HAL tick 的轻量轮询调度器，按不同周期调用任务函数。</span>
+            </div>
+            <span class="tag">调度器</span>
+          </div>
+          <h4>scheduler.h</h4>
+          <p>宏：<code>__SCHEDULER_APP_H__</code> 为头文件保护宏。结构体、变量：无。</p>
+          <table>
+            <thead><tr><th>函数声明</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>scheduler_init</code></td><td>初始化任务数量。</td></tr>
+              <tr><td><code>scheduler_run</code></td><td>周期扫描并执行到期任务。</td></tr>
+            </tbody>
+          </table>
+          <h4>scheduler.c</h4>
+          <table>
+            <thead><tr><th>结构体/变量</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>task_t</code></td><td>任务项结构：函数指针 <code>task_fun</code>、周期 <code>rate_ms</code>、上次运行时间 <code>last_run</code>。</td></tr>
+              <tr><td><code>scheduler_task[]</code></td><td>任务表：<code>usart1_task</code> 2 ms、<code>motor_task_1ms</code> 1 ms、<code>vofa_task</code> 50 ms、<code>plsr_service_storage_task_100ms</code> 100 ms。</td></tr>
+              <tr><td><code>task_num</code></td><td>任务数量，初始化时由数组长度计算。</td></tr>
+            </tbody>
+          </table>
+          <table>
+            <thead><tr><th>函数</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>scheduler_init</code></td><td>计算任务表长度并保存到 <code>task_num</code>。</td></tr>
+              <tr><td><code>scheduler_run</code></td><td>遍历任务表，若 <code>HAL_GetTick()</code> 与上次运行时间之差达到周期，则更新时间并执行任务。</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article id="motor-task" class="file-card">
+          <div class="file-head">
+            <div>
+              <h3>MyTask/motor_task.h / motor_task.c</h3>
+              <span class="path">电机/脉冲服务任务封装，将调度器和 EXTI 回调接到 PLSR 服务层。</span>
+            </div>
+            <span class="tag">任务层</span>
+          </div>
+          <h4>motor_task.h</h4>
+          <p>宏：<code>__MOTOR_TASK_H__</code> 为头文件保护宏。结构体、变量：无。</p>
+          <table>
+            <thead><tr><th>函数声明</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>motor_task_init</code></td><td>初始化脉冲服务。</td></tr>
+              <tr><td><code>motor_task_1ms</code></td><td>1 ms 周期任务。</td></tr>
+            </tbody>
+          </table>
+          <h4>motor_task.c</h4>
+          <p>宏、结构体、变量：无。</p>
+          <table>
+            <thead><tr><th>函数</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>motor_task_init</code></td><td>调用 <code>plsr_service_init</code>。</td></tr>
+              <tr><td><code>motor_task_1ms</code></td><td>调用 <code>plsr_service_task_1ms</code>，驱动核心状态机。</td></tr>
+              <tr><td><code>HAL_GPIO_EXTI_Callback</code></td><td>HAL 外部中断回调，把 GPIO pin 转交给 <code>plsr_service_on_exti</code>。</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article id="usart-task" class="file-card">
+          <div class="file-head">
+            <div>
+              <h3>MyTask/usart_task.h / usart_task.c</h3>
+              <span class="path">Modbus RTU 从站任务，处理 USART1 接收帧并通过 agile_modbus 生成响应。</span>
+            </div>
+            <span class="tag">通信任务</span>
+          </div>
+          <h4>usart_task.h</h4>
+          <p>宏：<code>__USART_APP_H__</code> 为头文件保护宏。结构体、变量：无。</p>
+          <table>
+            <thead><tr><th>函数声明</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>my_usart1_init</code></td><td>初始化 Modbus 应用、RTU 上下文和 USART1 DMA 接收。</td></tr>
+              <tr><td><code>usart1_task</code></td><td>周期处理收到的 Modbus RTU 帧。</td></tr>
+            </tbody>
+          </table>
+          <h4>usart_task.c</h4>
+          <table>
+            <thead><tr><th>变量</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>modbus_rtu</code></td><td>静态 agile_modbus RTU 上下文对象。</td></tr>
+              <tr><td><code>modbus_send_buf</code></td><td>Modbus 发送 ADU 缓冲区。</td></tr>
+              <tr><td><code>modbus_read_buf</code></td><td>Modbus 接收 ADU 缓冲区。</td></tr>
+            </tbody>
+          </table>
+          <table>
+            <thead><tr><th>函数</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>modbus_ctx</code></td><td>返回 <code>modbus_rtu._ctx</code>，便于调用 agile_modbus 通用接口。</td></tr>
+              <tr><td><code>modbus_rtu_slave_init</code></td><td>初始化 RTU 上下文并设置从站地址为 <code>PLSR_DEFAULT_SLAVE_ID</code>。</td></tr>
+              <tr><td><code>my_usart1_init</code></td><td>初始化 Modbus 映射、RTU 从站和 USART1 空闲接收 DMA。</td></tr>
+              <tr><td><code>usart1_task</code></td><td>若接收标志有效且 UART 空闲，则复制用户缓冲到 Modbus 缓冲，调用 <code>agile_modbus_slave_handle</code>，有响应时用 USART1 DMA 发送。</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article id="vofa-task" class="file-card">
+          <div class="file-head">
+            <div>
+              <h3>MyTask/vofa_app.h / vofa_app.c</h3>
+              <span class="path">VOFA/调试输出任务，周期输出当前频率、当前段和状态。</span>
+            </div>
+            <span class="tag">监控输出</span>
+          </div>
+          <h4>vofa_app.h</h4>
+          <p>宏：<code>__VOFA_APP_H__</code> 为头文件保护宏。结构体、变量：无。</p>
+          <table>
+            <thead><tr><th>函数声明</th><th>作用</th></tr></thead>
+            <tbody><tr><td><code>vofa_task</code></td><td>输出 VOFA 数据帧。</td></tr></tbody>
+          </table>
+          <h4>vofa_app.c</h4>
+          <p>宏、结构体、文件级变量：无。</p>
+          <table>
+            <thead><tr><th>函数</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td><code>vofa_task</code></td><td>读取 <code>PlsrStatus</code>，通过 <code>my_printf</code> 输出 <code>current_freq_hz,current_segment,state</code>，供 VOFA 绘图或串口观察。</td></tr>
+            </tbody>
+          </table>
+        </article>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
